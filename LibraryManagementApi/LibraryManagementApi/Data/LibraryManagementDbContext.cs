@@ -1,4 +1,5 @@
-﻿using LibraryManagementApi.Models;
+﻿using LibraryManagementApi.Models.AuthorModels;
+using LibraryManagementApi.Models.BookModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace LibraryManagementApi.Data

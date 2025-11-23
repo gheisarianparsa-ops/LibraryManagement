@@ -1,4 +1,6 @@
-﻿namespace LibraryManagementApi.Models
+﻿using LibraryManagementApi.Models.AuthorModels;
+
+namespace LibraryManagementApi.Models.BookModels
 {
     public class BookModel
     {
