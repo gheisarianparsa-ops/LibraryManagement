@@ -29,7 +29,6 @@ namespace LibraryManagementApi.Repository
             var entity = await _context.Authors.FirstOrDefaultAsync(x => x.Id == Id);
             if (entity == null)
                 return;
-
             _context.Authors.Remove(entity);
             await _context.SaveChangesAsync();
         }
@@ -38,6 +37,16 @@ namespace LibraryManagementApi.Repository
         {
             var authors = await _context.Authors.ToListAsync();
             return _mapper.Map<List<AuthorReadDto>>(authors);
+        }
+
+        public async Task<AuthorReadDto> GetById(int Id)
+        {
+            var author =await _context.Authors.FindAsync(Id);
+            if (author==null)
+            {
+                return null;
+            }
+            return _mapper.Map<AuthorReadDto>(author);
         }
 
         public async Task<bool> IsExist(int id)

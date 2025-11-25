@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using LibraryManagementApi.Data;
 using LibraryManagementApi.Interfaces;
+using LibraryManagementApi.Models.AuthorModels;
 using LibraryManagementApi.Models.BookModels;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
@@ -39,6 +40,16 @@ namespace LibraryManagementApi.Repository
         {
             var books=await _context.Books.ToListAsync();
             return _mapper.Map<List<BookReadDto>>(books);
+        }
+
+        public async Task<BookReadDto> GetById(int Id)
+        {
+            var book = await _context.Books.FindAsync(Id);
+            if (book == null)
+            {
+                return null;
+            }
+            return _mapper.Map<BookReadDto>(book);
         }
 
         public async Task<bool> IsExist(int id)
