@@ -4,7 +4,7 @@
     {
         Task<List<TRead>> GetAllAsync();
         Task<TRead> CreateAsync(TCreate entity);
-        Task<TRead> UpdateAsync(TUpdate entity);
+        Task<TRead> UpdateAsync(int Id,TUpdate entity);
         Task DeleteAsync(int Id);
         Task<TRead> GetById(int Id);
         Task<bool> IsExist(int id);

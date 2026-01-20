@@ -41,8 +41,8 @@ namespace LibraryManagementApi.Repository
 
         public async Task<AuthorReadDto> GetById(int Id)
         {
-            var author =await _context.Authors.FindAsync(Id);
-            if (author==null)
+            var author = await _context.Authors.FindAsync(Id);
+            if (author == null)
             {
                 return null;
             }

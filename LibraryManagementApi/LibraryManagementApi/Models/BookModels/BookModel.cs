@@ -1,4 +1,5 @@
 ﻿using LibraryManagementApi.Models.AuthorModels;
+using LibraryManagementApi.Models.CategoryModels;
 
 namespace LibraryManagementApi.Models.BookModels
 {
@@ -9,5 +10,6 @@ namespace LibraryManagementApi.Models.BookModels
         public string Description { get; set; }
         public int AuthorId { get; set; }
         public AuthorModel Author { get; set; }
+ 
     }
 }
