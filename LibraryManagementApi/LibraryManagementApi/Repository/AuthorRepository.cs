@@ -65,5 +65,10 @@ namespace LibraryManagementApi.Repository
 
             return _mapper.Map<AuthorReadDto>(author);
         }
+
+        public Task<AuthorReadDto> UpdateAsync(int Id, AuthorUpdateDto entity)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

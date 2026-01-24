@@ -68,5 +68,10 @@ namespace LibraryManagementApi.Repository
             await _context.SaveChangesAsync();
             return _mapper.Map<BookReadDto>(book);
         }
+
+        public Task<BookReadDto> UpdateAsync(int Id, BookUpdateDto entity)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

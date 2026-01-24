@@ -9,8 +9,8 @@ namespace LibraryManagementApi.Models.OrderItemsModels
         public int OrderId { get; set; }
         public OrderModel Order { get; set; }
         public int Quantity { get; set; }
-        public int FeePrice { get; set; }
-        public int TotalPrice => Quantity * FeePrice;
+        public decimal FeePrice { get; set; }
+        public decimal TotalPrice => Quantity * FeePrice;
         public int ProductId { get; set; }
         public ProductModel Product { get; set; }
     }

@@ -20,18 +20,18 @@ namespace LibraryManagementApi.Repository
         public async Task<OrderItemReadDto> CreateAsync(OrderItemCreateDto entity)
         {
             var orderItem = _mapper.Map<OrderItemModel>(entity);
-            var product = await _dbContext.Products.FindAsync(entity.ProductId);
+            var product = await _dbContext.Products.Include(x => x.PriceFluctuations).SingleOrDefaultAsync(x => x.Id == entity.ProductId);
             var order = await _dbContext.Orders.FindAsync(entity.OrderId);
 
             if (product == null || order == null)
             {
                 return null;
             }
-
             orderItem.Product = product;
             orderItem.Order = order;
-            orderItem.FeePrice = product.Price;
-
+            orderItem.FeePrice = product.ApplicablePrice;
+            order.OrderItems.Add(orderItem);
+            order.TotalPrice += orderItem.TotalPrice;
             await _dbContext.OrderItems.AddAsync(orderItem);
             await _dbContext.SaveChangesAsync();
 
@@ -75,19 +75,16 @@ namespace LibraryManagementApi.Repository
         public async Task<OrderItemReadDto> UpdateAsync(int id, OrderItemUpdateDto entity)
         {
             var orderItem = await _dbContext.OrderItems
-                                            .Include(oi => oi.Product)
-                                            .Include(oi => oi.Order)
-                                            .FirstOrDefaultAsync(oi => oi.Id ==id);
+                                      .Include(oi => oi.Product)
+        .ThenInclude(p => p.PriceFluctuations)
+    .FirstOrDefaultAsync(oi => oi.Id == id);
 
             if (orderItem == null) return null;
 
-            _mapper.Map(entity, orderItem);
+            // فقط تعداد را آپدیت می‌کنیم
+            orderItem.Quantity = entity.Quantity;
 
-            if (entity.Quantity!=null)
-            {
-                orderItem.Quantity = entity.Quantity;
-                orderItem.FeePrice = orderItem.Product.Price * orderItem.Quantity;
-            }
+            orderItem.FeePrice = orderItem.Product.ApplicablePrice;
 
             await _dbContext.SaveChangesAsync();
             return _mapper.Map<OrderItemReadDto>(orderItem);

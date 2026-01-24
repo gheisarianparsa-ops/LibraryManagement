@@ -30,19 +30,27 @@ namespace LibraryManagementApi.Configurations
             //Product
             CreateMap<ProductModel, ProductReadDto>()
                 .ForMember(dest => dest.CategoryNames, opt => opt.MapFrom(src => src.Categories.Select(c => c.Name)))
-                .ForMember(dest => dest.CategoryIds, opt => opt.MapFrom(src => src.Categories.Select(c => c.Id)));
+                .ForMember(dest => dest.CategoryIds, opt => opt.MapFrom(src => src.Categories.Select(c => c.Id)))
+                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.ApplicablePrice));
             CreateMap<ProductUpdateDto, ProductModel>();
             CreateMap<ProductCreateDto, ProductModel>();
             //Order
             CreateMap<OrderModel, OrderReadDto>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.Name));
-            CreateMap<OrderCreateDto, OrderModel>();
+            CreateMap<OrderCreateDto, OrderModel>()
+             .ForMember(dest => dest.OrderDate, opt => opt.MapFrom(src => DateTimeOffset.UtcNow))
+             .ForMember(dest => dest.Status, opt => opt.MapFrom(src => "Pending"))
+             .ForMember(dest => dest.TotalPrice, opt => opt.Ignore()); // بعداً محاسبه می‌شود
             CreateMap<OrderUpdateDto, OrderModel>();
             //OrderItems
             CreateMap<OrderItemModel, OrderItemReadDto>()
                 .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name))
-                .ForMember(dest => dest.FeePrice, opt => opt.MapFrom(src => src.Product.Price));
-            CreateMap<OrderItemCreateDto, OrderItemModel>();
+                .ForMember(dest => dest.FeePrice, opt => opt.MapFrom(src => src.Product.ApplicablePrice));
+            CreateMap<OrderItemCreateDto, OrderItemModel>()
+            .ForMember(dest => dest.FeePrice, opt => opt.Ignore())   // محاسبه می‌شود
+            .ForMember(dest => dest.TotalPrice, opt => opt.Ignore())
+            .ForMember(dest => dest.Order, opt => opt.Ignore());     // ست می‌شود بعداً
+
             CreateMap<OrderItemUpdateDto, OrderItemModel>();
             //Category
             CreateMap<CategoryModel, CategoryReadDto>();

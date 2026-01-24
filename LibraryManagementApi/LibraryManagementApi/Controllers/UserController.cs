@@ -1,18 +1,27 @@
-﻿using LibraryManagementApi.Models.UserModels;
-using LibraryManagementApi.Repository;
+﻿using LibraryManagementApi.Interfaces;
+using LibraryManagementApi.Models.UserModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryManagementApi.Controllers
 {
+    [ApiController]
+    [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
-        private readonly UserRepository _userRepository;
-        public UserController(UserRepository repository)
+        private readonly IGenericRepository<UserModel, UserReadDto, UserUpdateDto, UserCreateDto> _userRepository;
+
+        public UserController(IGenericRepository<UserModel, UserReadDto, UserUpdateDto, UserCreateDto> repository)
         {
             _userRepository = repository;
         }
-
+        [HttpGet]
+        public async Task<ActionResult<UserReadDto>> GetAllUsers()
+        {
+            var Users = await _userRepository.GetAllAsync();
+            return Ok(Users);
+        }
         // GET: UserController/Details/5
+
         [HttpGet("{Id}")]
         public async Task<ActionResult<UserReadDto>> GetUser(int id)
         {
@@ -42,8 +51,8 @@ namespace LibraryManagementApi.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult<UserReadDto>> Edit(int id, UserUpdateDto entity)
         {
-           
-            var updatedUser = await _userRepository.UpdateAsync(id,entity);
+
+            var updatedUser = await _userRepository.UpdateAsync(id, entity);
             if (updatedUser == null)
                 return NotFound();
 

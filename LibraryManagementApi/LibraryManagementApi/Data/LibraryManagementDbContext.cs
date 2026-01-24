@@ -3,6 +3,7 @@ using LibraryManagementApi.Models.BookModels;
 using LibraryManagementApi.Models.CategoryModels;
 using LibraryManagementApi.Models.OrderItemsModels;
 using LibraryManagementApi.Models.OrderModels;
+using LibraryManagementApi.Models.PriceFluctuationsModel;
 using LibraryManagementApi.Models.ProductModels;
 using LibraryManagementApi.Models.UserModels;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +23,7 @@ namespace LibraryManagementApi.Data
         public DbSet<OrderItemModel> OrderItems { get; set; }
         public DbSet<ProductModel> Products { get; set; }
         public DbSet<CategoryModel> Categories { get; set; }
+        public DbSet<PriceFluctModel> PriceFlucts { get; set; }
        
     }
 

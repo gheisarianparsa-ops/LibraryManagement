@@ -42,7 +42,7 @@ namespace LibraryManagementApi.Repository
 
         public async Task<CategoryReadDto> GetById(int Id)
         {
-            var category = await _dbcontext.Categories.FirstOrDefaultAsync(u => u.Id == Id);
+            var category = await _dbcontext.Categories.Include(x => x.Products).FirstOrDefaultAsync(u => u.Id == Id);
             if (category == null)
             {
                 return null;
@@ -58,12 +58,12 @@ namespace LibraryManagementApi.Repository
 
         public async Task<CategoryReadDto> UpdateAsync(int id, CategoryUpdateDto entity)
         {
-            var category =await _dbcontext.Categories.FirstOrDefaultAsync(u => u.Id == id);
+            var category = await _dbcontext.Categories.FirstOrDefaultAsync(u => u.Id == id);
             if (category is null)
             {
                 return null;
             }
-             _mapper.Map(entity, category);
+            _mapper.Map(entity, category);
             await _dbcontext.SaveChangesAsync();
             return _mapper.Map<CategoryReadDto>(category);
         }

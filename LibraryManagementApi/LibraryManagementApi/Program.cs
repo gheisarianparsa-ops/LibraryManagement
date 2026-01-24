@@ -2,7 +2,13 @@ using LibraryManagementApi.Data;
 using LibraryManagementApi.Interfaces;
 using LibraryManagementApi.Models.AuthorModels;
 using LibraryManagementApi.Models.BookModels;
+using LibraryManagementApi.Models.CategoryModels;
+using LibraryManagementApi.Models.OrderItemsModels;
+using LibraryManagementApi.Models.OrderModels;
+using LibraryManagementApi.Models.ProductModels;
+using LibraryManagementApi.Models.UserModels;
 using LibraryManagementApi.Repository;
+using LibraryManagementApi.Services;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,8 +23,30 @@ builder.Services.AddScoped<
 >();
 builder.Services.AddScoped<
     IGenericRepository<BookModel, BookReadDto, BookUpdateDto, BookCreateDto>,
-    BookRepository
+    BookRepository 
 >();
+builder.Services.AddScoped<
+    IGenericRepository<ProductModel, ProductReadDto, ProductUpdateDto, ProductCreateDto>,
+    ProductRepository
+>();
+builder.Services.AddScoped<
+    IGenericRepository<UserModel, UserReadDto, UserUpdateDto,UserCreateDto>,
+    UserRepository
+>();
+builder.Services.AddScoped<
+    IGenericRepository<OrderModel, OrderReadDto, OrderUpdateDto, OrderCreateDto>,
+    OrderRepository
+>();
+builder.Services.AddScoped<
+    IGenericRepository<OrderItemModel, OrderItemReadDto, OrderItemUpdateDto, OrderItemCreateDto>,
+    OrderItemRepository
+>();
+builder.Services.AddScoped<
+    IGenericRepository<CategoryModel, CategoryReadDto, CategoryUpdateDto, CategoryCreateDto>,
+    CategoryRepository
+>();
+builder.Services.AddScoped<PriceFluctutaionService>();
+
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();

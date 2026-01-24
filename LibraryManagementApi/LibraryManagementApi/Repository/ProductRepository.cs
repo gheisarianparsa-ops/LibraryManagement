@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using LibraryManagementApi.Data;
 using LibraryManagementApi.Interfaces;
+using LibraryManagementApi.Models.PriceFluctuationsModel;
 using LibraryManagementApi.Models.ProductModels;
+using LibraryManagementApi.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace LibraryManagementApi.Repository
@@ -10,18 +12,34 @@ namespace LibraryManagementApi.Repository
     {
         private readonly LibraryManagementDbContext _dbContext;
         private readonly IMapper _mapper;
-        public ProductRepository(IMapper mapper, LibraryManagementDbContext dbContext)
+        private readonly PriceFluctutaionService _priceFluctService;
+        public ProductRepository(IMapper mapper, LibraryManagementDbContext dbContext, PriceFluctutaionService priceFluctutaion)
         {
             _dbContext = dbContext;
             _mapper = mapper;
+            _priceFluctService = priceFluctutaion;
         }
-        public async Task<ProductReadDto> CreateAsync(ProductCreateDto entity)
+        public async Task<ProductReadDto> CreateAsync(ProductCreateDto dto)
         {
-            var Product = _mapper.Map<ProductModel>(entity);
-            await _dbContext.Products.AddAsync(Product);
+            var product = _mapper.Map<ProductModel>(dto);
+
+            product.Categories = await _dbContext.Categories
+                .Where(c => dto.CategoryIds.Contains(c.Id))
+                .ToListAsync();
+
+            product.PriceFluctuations.Add(new PriceFluctModel
+            {
+                Product=product,
+                NewPrice=dto.Price,
+                DeltaPrice=dto.Price,
+                DateToApply=DateTimeOffset.Now
+            });
+            await _dbContext.Products.AddAsync(product);
             await _dbContext.SaveChangesAsync();
-            return _mapper.Map<ProductReadDto>(Product);
+
+            return _mapper.Map<ProductReadDto>(product);
         }
+
 
         public async Task DeleteAsync(int Id)
         {
@@ -36,18 +54,23 @@ namespace LibraryManagementApi.Repository
 
         public async Task<List<ProductReadDto>> GetAllAsync()
         {
-            var Products = await _dbContext.Products.ToListAsync();
-            return _mapper.Map<List<ProductReadDto>>(Products);
+            var products = await _dbContext.Products
+     .Include(p => p.Categories)
+     .Include(p => p.PriceFluctuations)
+     .ToListAsync();
+            return _mapper.Map<List<ProductReadDto>>(products);
         }
 
         public async Task<ProductReadDto> GetById(int Id)
         {
-            var Product = await _dbContext.Products.Include(x => x.Categories).FirstAsync(p => p.Id == Id);
-            if (Product == null)
-            {
-                return null;
-            }
-            return _mapper.Map<ProductReadDto>(Product);
+            var product = await _dbContext.Products
+                .Include(p => p.Categories)
+                .Include(p => p.PriceFluctuations)
+                .FirstOrDefaultAsync(p => p.Id == Id);
+
+            if (product == null) return null;
+
+            return _mapper.Map<ProductReadDto>(product);
         }
 
         public async Task<bool> IsExist(int id)
@@ -62,6 +85,10 @@ namespace LibraryManagementApi.Repository
             {
                 return null;
             }
+            var OldPrice = Product.ApplicablePrice;
+            ////test
+            //entity.NewPriceDateToApply = DateTimeOffset.Now.AddMinutes(2);
+           
             _mapper.Map(entity, Product);
             if (entity.CategoryIds != null)
             {
@@ -73,8 +100,20 @@ namespace LibraryManagementApi.Repository
                 }
                 await _dbContext.SaveChangesAsync();
             }
-            return _mapper.Map<ProductReadDto>(Product);
 
+
+            //در صورت تغییر قیمت
+            if (entity.Price != OldPrice)
+            {
+                await _priceFluctService.PriceUpdator(new PriceFluctCreateDto
+                {
+                    ProductId = Product.Id,
+                    OldPrice = OldPrice,
+                    NewPrice = entity.Price,
+                    DateToApply = (DateTimeOffset)entity.NewPriceDateToApply
+                });
+            }
+            return _mapper.Map<ProductReadDto>(Product);
         }
     }
 }

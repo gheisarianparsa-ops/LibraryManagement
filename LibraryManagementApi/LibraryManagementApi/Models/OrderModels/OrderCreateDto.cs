@@ -4,8 +4,8 @@ namespace LibraryManagementApi.Models.OrderModels
 {
     public class OrderCreateDto
     {
+        public int UserId { get; set; }
         public string Name { get; set; }
-        public ICollection<OrderItemModel> OrderItems { get; set; }
     }
 
 }

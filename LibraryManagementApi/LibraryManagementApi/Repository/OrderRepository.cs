@@ -19,7 +19,15 @@ namespace LibraryManagementApi.Repository
 
         public async Task<OrderReadDto> CreateAsync(OrderCreateDto entity)
         {
+            //User Validation
+            var user = await _dbContext.Users.FindAsync(entity.UserId);
+            if (user == null)
+            {
+                throw new Exception("User Not Found");
+            }
+            //Create Order
             var order = _mapper.Map<OrderModel>(entity);
+            order.User = user;
             await _dbContext.Orders.AddAsync(order);
             await _dbContext.SaveChangesAsync();
             return _mapper.Map<OrderReadDto>(order);
