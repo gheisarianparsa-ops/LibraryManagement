@@ -29,10 +29,10 @@ namespace LibraryManagementApi.Repository
 
             product.PriceFluctuations.Add(new PriceFluctModel
             {
-                Product=product,
-                NewPrice=dto.Price,
-                DeltaPrice=dto.Price,
-                DateToApply=DateTimeOffset.Now
+                Product = product,
+                NewPrice = dto.Price,
+                DeltaPrice = dto.Price,
+                DateToApply = DateTimeOffset.Now
             });
             await _dbContext.Products.AddAsync(product);
             await _dbContext.SaveChangesAsync();
@@ -43,10 +43,16 @@ namespace LibraryManagementApi.Repository
 
         public async Task DeleteAsync(int Id)
         {
-            var Product = await _dbContext.Products.FirstOrDefaultAsync(x => x.Id == Id);
+            var Product = await _dbContext.Products.Include(X => X.OrderItems).FirstOrDefaultAsync(x => x.Id == Id);
+
             if (Product is null)
             {
                 return;
+            }
+            if (Product.OrderItems is not null)
+            {
+                throw new Exception("You Have OrderItem Of This Product");
+
             }
             _dbContext.Products.Remove(Product);
             await _dbContext.SaveChangesAsync();
@@ -88,7 +94,8 @@ namespace LibraryManagementApi.Repository
             var OldPrice = Product.ApplicablePrice;
             ////test
             //entity.NewPriceDateToApply = DateTimeOffset.Now.AddMinutes(2);
-           
+            3
+
             _mapper.Map(entity, Product);
             if (entity.CategoryIds != null)
             {

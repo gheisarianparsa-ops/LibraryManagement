@@ -44,8 +44,7 @@ namespace LibraryManagementApi.Configurations
             CreateMap<OrderUpdateDto, OrderModel>();
             //OrderItems
             CreateMap<OrderItemModel, OrderItemReadDto>()
-                .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name))
-                .ForMember(dest => dest.FeePrice, opt => opt.MapFrom(src => src.Product.ApplicablePrice));
+                .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name));
             CreateMap<OrderItemCreateDto, OrderItemModel>()
             .ForMember(dest => dest.FeePrice, opt => opt.Ignore())   // محاسبه می‌شود
             .ForMember(dest => dest.TotalPrice, opt => opt.Ignore())

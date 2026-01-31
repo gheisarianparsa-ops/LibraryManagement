@@ -21,7 +21,7 @@ namespace LibraryManagementApi.Controllers
             var Categories = await _categoryrepository.GetAllAsync();
             return Ok(Categories);
         }
-        [HttpGet("{Id}")]
+        [HttpGet("{id}")]
         public async Task<ActionResult<CategoryReadDto>> GetCategory(int id)
         {
             var category = await _categoryrepository.GetById(id);

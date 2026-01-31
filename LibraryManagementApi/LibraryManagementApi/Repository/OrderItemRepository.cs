@@ -19,30 +19,46 @@ namespace LibraryManagementApi.Repository
 
         public async Task<OrderItemReadDto> CreateAsync(OrderItemCreateDto entity)
         {
-            var orderItem = _mapper.Map<OrderItemModel>(entity);
-            var product = await _dbContext.Products.Include(x => x.PriceFluctuations).SingleOrDefaultAsync(x => x.Id == entity.ProductId);
-            var order = await _dbContext.Orders.FindAsync(entity.OrderId);
+            var product = await _dbContext.Products
+        .Include(x => x.PriceFluctuations)
+        .SingleOrDefaultAsync(x => x.Id == entity.ProductId);
+
+            var order = await _dbContext.Orders
+                .Include(o => o.OrderItems)
+                .SingleOrDefaultAsync(o => o.Id == entity.OrderId);
 
             if (product == null || order == null)
-            {
                 return null;
+
+            var existingOrderItem = order.OrderItems
+                .SingleOrDefault(x => x.ProductId == entity.ProductId);
+
+            if (existingOrderItem != null)
+            {
+                existingOrderItem.Quantity += entity.Quantity;
+                order.TotalPrice += existingOrderItem.FeePrice * entity.Quantity;
+                return _mapper.Map<OrderItemReadDto>(existingOrderItem);
             }
+            var orderItem = _mapper.Map<OrderItemModel>(entity);
             orderItem.Product = product;
             orderItem.Order = order;
             orderItem.FeePrice = product.ApplicablePrice;
+
             order.OrderItems.Add(orderItem);
             order.TotalPrice += orderItem.TotalPrice;
+
             await _dbContext.OrderItems.AddAsync(orderItem);
             await _dbContext.SaveChangesAsync();
 
             return _mapper.Map<OrderItemReadDto>(orderItem);
+
         }
 
         public async Task DeleteAsync(int Id)
         {
-            var orderItem = await _dbContext.OrderItems.FirstOrDefaultAsync(oi => oi.Id == Id);
+            var orderItem = await _dbContext.OrderItems.Include(x => x.Order).FirstOrDefaultAsync(oi => oi.Id == Id);
             if (orderItem == null) return;
-
+            orderItem.Order.TotalPrice -= orderItem.TotalPrice;
             _dbContext.OrderItems.Remove(orderItem);
             await _dbContext.SaveChangesAsync();
         }
@@ -75,18 +91,18 @@ namespace LibraryManagementApi.Repository
         public async Task<OrderItemReadDto> UpdateAsync(int id, OrderItemUpdateDto entity)
         {
             var orderItem = await _dbContext.OrderItems
-                                      .Include(oi => oi.Product)
-        .ThenInclude(p => p.PriceFluctuations)
-    .FirstOrDefaultAsync(oi => oi.Id == id);
+        .Include(oi => oi.Order)
+        .FirstOrDefaultAsync(oi => oi.Id == id);
 
-            if (orderItem == null) return null;
-
-            // فقط تعداد را آپدیت می‌کنیم
+            if (orderItem == null)
+                return null;
+            var oldTotalPrice = orderItem.TotalPrice;
             orderItem.Quantity = entity.Quantity;
-
-            orderItem.FeePrice = orderItem.Product.ApplicablePrice;
+            var newTotalPrice = orderItem.TotalPrice;
+            orderItem.Order.TotalPrice += (newTotalPrice - oldTotalPrice);
 
             await _dbContext.SaveChangesAsync();
+
             return _mapper.Map<OrderItemReadDto>(orderItem);
         }
     }

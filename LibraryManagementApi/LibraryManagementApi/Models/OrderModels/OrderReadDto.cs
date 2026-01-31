@@ -11,7 +11,7 @@ namespace LibraryManagementApi.Models.OrderModels
         public string UserName { get; set; }
         public int TotalPrice { get; set; }
         public string Status { get; set; }
-        public ICollection<OrderItemModel> OrderItems { get; set; } = new List<OrderItemModel>();
+        public ICollection<OrderItemReadDto> OrderItems { get; set; } = new List<OrderItemReadDto>();
     }
 
 }

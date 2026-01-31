@@ -22,7 +22,7 @@ namespace LibraryManagementApi.Controllers
         }
         // GET: UserController/Details/5
 
-        [HttpGet("{Id}")]
+        [HttpGet("{id}")]
         public async Task<ActionResult<UserReadDto>> GetUser(int id)
         {
             var user = await _userRepository.GetById(id);

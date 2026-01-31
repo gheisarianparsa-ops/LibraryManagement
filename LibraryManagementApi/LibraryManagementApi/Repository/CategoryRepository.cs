@@ -25,12 +25,16 @@ namespace LibraryManagementApi.Repository
 
         public async Task DeleteAsync(int Id)
         {
-            var Categories = await _dbcontext.Categories.FirstOrDefaultAsync(u => u.Id == Id);
-            if (Categories is null)
+            var Category = await _dbcontext.Categories.Include(x=>x.Products).FirstOrDefaultAsync(u => u.Id == Id);
+            if (Category is null)
             {
                 return;
             }
-            _dbcontext.Categories.Remove(Categories);
+            if (Category.Products is not null)
+            {
+                throw new Exception("Selected Category Has Active Product");
+            }
+            _dbcontext.Categories.Remove(Category);
             await _dbcontext.SaveChangesAsync();
         }
 

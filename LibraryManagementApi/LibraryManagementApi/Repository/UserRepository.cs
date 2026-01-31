@@ -25,10 +25,15 @@ namespace LibraryManagementApi.Repository
 
         public async Task DeleteAsync(int Id)
         {
-            var entity = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == Id);
+            var entity = await _dbContext.Users.Include(x=>x.Orders).FirstOrDefaultAsync(x => x.Id == Id);
             if (entity is null)
             {
                 return;
+            }
+            var orders = entity.Orders;
+            foreach (var order in orders)
+            {
+                _dbContext.Orders.Remove(order);
             }
             _dbContext.Users.Remove(entity);
             await _dbContext.SaveChangesAsync();
@@ -37,7 +42,7 @@ namespace LibraryManagementApi.Repository
 
         public async Task<List<UserReadDto>> GetAllAsync()
         {
-            var users = await _dbContext.Users.ToListAsync();
+            var users = await _dbContext.Users.Include(x=>x.Orders).ToListAsync();
             return _mapper.Map<List<UserReadDto>>(users);
         }
 
